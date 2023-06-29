@@ -1,6 +1,5 @@
 import re
 
-from IPython.display import display
 import pandas
 
 def read_corpus(corpus_name):
@@ -9,8 +8,13 @@ def read_corpus(corpus_name):
 
     return txt
 
+def tag_scentences(txt):
+    lines = txt.splitlines()
+    lines = ["<s> " + line + " </s>" for line in lines]
+    return lines
+
 def calculate_unigram(txt):
-    words_list = []
+    unigrams_list = []
     P_w_list = []
 
     split_words = re.split('\s|\n', txt)
@@ -18,19 +22,53 @@ def calculate_unigram(txt):
     count_total = len(split_words)
     
     for word in split_words:
-        if words_list.count(word) == 0:
+        if unigrams_list.count(word) == 0:
 
             count_w = split_words.count(word)
             p_w = count_w / count_total
 
-            words_list.append(word)
+            unigrams_list.append(word)
             P_w_list.append(p_w)
 
-    return {"Word": words_list, "P_w": P_w_list}
+    return {"Unigram": unigrams_list, "P_w": P_w_list}
+
+def calculate_bigram(txt):
+    bigrmas_list = []
+    P_w_list = []
+    
+    scentences = tag_scentences(txt)
+
+    for scentence in scentences:
+
+        split_words = re.split('\s', scentence)
+        
+        for i in range(1, len(split_words)):
+            bigram = split_words[i - 1] + " " + split_words[i]
+
+            if bigrmas_list.count(bigram) == 0:
+            
+                count_bigram = sum(len(re.findall(bigram, s)) for s in scentences)
+                count_prev_w = sum(split_words[i - 1] in re.split('\s', scentence) for s in scentences)
+                P_w = count_bigram / count_prev_w
+                print("P("+split_words[i]+"|"+split_words[i-1]+")"+" = ", P_w)
+
+                if count_bigram != 0:
+                    bigrmas_list.append(bigram)
+                    P_w_list.append(P_w)
+
+    return {"Bigram": bigrmas_list, "P_w": P_w_list}
+
+
+
 
 def main():
     unigrams = calculate_unigram(read_corpus("corpus.en"))
     print(pandas.DataFrame(unigrams))
+
+    print("-------------------------")
+
+    bigrams = calculate_bigram(read_corpus("corpus.en"))
+    print(pandas.DataFrame(bigrams))
     
 
 if __name__=="__main__":
