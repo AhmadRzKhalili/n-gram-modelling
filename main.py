@@ -1,3 +1,8 @@
+import re
+
+from IPython.display import display
+import pandas
+
 def read_corpus(corpus_name):
     f = open(corpus_name, "r")
     txt = f.read()
@@ -6,9 +11,8 @@ def read_corpus(corpus_name):
 
 def calculate_unigram(txt):
     words = []
-    unigrams = []
+    P_w_list = []
 
-    import re
     split_words = re.split('\s|\n', txt)
 
     count_total = len(split_words)
@@ -18,14 +22,15 @@ def calculate_unigram(txt):
 
             count_w = split_words.count(word)
             p_w = count_w / count_total
-            unigrams.append({word: p_w})
-            
-            words.append(word)
 
-    return unigrams
+            words.append(word)
+            P_w_list.append(p_w)
+
+    return {"Word": words, "P_w": P_w_list}
 
 def main():
-    print(calculate_unigram(read_corpus("corpus.en")))
+    unigrams = calculate_unigram(read_corpus("corpus.en"))
+    print(pandas.DataFrame(unigrams))
     
 
 if __name__=="__main__":
