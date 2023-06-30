@@ -46,11 +46,15 @@ def calculate_bigram(txt):
             bigram = split_words[i - 1] + " " + split_words[i]
 
             if bigrmas_list.count(bigram) == 0:
-            
+                
                 count_bigram = sum(len(re.findall(bigram, s)) for s in scentences)
-                count_prev_w = sum(split_words[i - 1] in re.split('\s', scentence) for s in scentences)
+                
+                count_prev_w = 0
+                for s in scentences:
+                    words = re.split('\s', s)
+                    count_prev_w += words.count(split_words[i - 1])
+
                 P_w = count_bigram / count_prev_w
-                print("P("+split_words[i]+"|"+split_words[i-1]+")"+" = ", P_w)
 
                 if count_bigram != 0:
                     bigrmas_list.append(bigram)
